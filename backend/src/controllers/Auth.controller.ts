@@ -38,6 +38,11 @@ export const signIn = async (req: Request, res: Response) => {
     }
 };
 
+export const signOut = async (req: Request, res: Response) => {
+    // Since JWT is stateless, sign out can be handled on the client side by deleting the token.
+    res.status(200).json({ message: "Sign out successful on client side by deleting the token" });
+};
+
 export const getProfile = async (req: AuthRequest, res: Response) => {
     try {
         const userId = (req.user as { _id: string })?._id; 

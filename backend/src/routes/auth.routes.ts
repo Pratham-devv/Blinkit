@@ -4,7 +4,7 @@ import { signUp, signIn, deleteProfile, getProfile, updateProfile} from "../cont
 import { AuthMiddleware } from "../middlewares/Auth.middleware";
 
 const router = Router();
-
+router.get("/test", (req, res) => { res.send("Auth route is working"); });
 router.post("/signup", signUp);
 router.post("/signin", signIn);
 router.get("/profile", AuthMiddleware, getProfile);

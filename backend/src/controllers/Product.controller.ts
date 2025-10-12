@@ -1,4 +1,3 @@
-import { Category } from "../models/category.model";
 import { Product } from "../models/product.model";
 import { Request, Response } from "express";
 
@@ -18,21 +17,10 @@ export const viewProduct = async (req: Request, res: Response) => {
 
 export const viewProductByCategory = async (req: Request, res: Response) => {
     try {
-       const {category} = req.query;
-         const filter: any = {};
-        if (category) {
-            const categoryDoc = await Category.findOne({ name: category.toString()});
-            if (categoryDoc) {
-                filter.category = categoryDoc._id;
-            } else {
-                return res.status(404).json({ message: "Category not found" });
-            }
-        }
+        const { category } = req.query;
+        const filter = category ? { category } : {};
 
-        const products = await Product
-            .find(filter)
-            .populate('category', 'name')
-            .sort({ createdAt: -1 });
+        const products = await Product.find(filter);
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
@@ -53,6 +41,19 @@ export const searchProducts = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Server error", error });
     }   
 };
+export const postManyProducts = async (req: Request, res: Response) => {
+    try {
+        const productsData = req.body; // Expecting an array of products in the request body
+        if (!Array.isArray(productsData) || productsData.length === 0) {
+            return res.status(400).json({ message: "Request body must be a non-empty array of products" });
+        }   
+        const createdProducts = await Product.insertMany(productsData);
+        res.status(201).json(createdProducts);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }   
+};
+
 
 
 

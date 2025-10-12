@@ -10,4 +10,5 @@ export interface CartContextType{
     addToCart: (product: Product, quantity?: number)=> void;
     removeFromcart: (productId: string)=> void;
     clearCart: ()=> void;
+    viewCart: ()=> void;
 }
