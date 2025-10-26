@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import type { Product, ProductContextType } from "../../types/Product.types";
+import api from "../../api/axiosInstance";
 
 
 const ProductContext = createContext<ProductContextType | null>(null);
@@ -8,24 +9,23 @@ export const ProductProvider: React.FC<{children: ReactNode}> = ({children})=>{
     const[products, setProducts] = useState<Product[]>([]);
     
     useEffect(()=>{
-        if(products.length === 0){
-            getProducts();
-        }
-    },[]);
+        getProducts();
+    }, []);
 
     const getProducts = async ()=>{
-        const res = await fetch('https://fakestoreapi.com/products');
-        const data = await res.json();
-        setProducts(data);
+        const res = await api.get('/products');
+        setProducts(res.data);
+        console.log(res.data);
+        return res.data;
     };
 
     const viewProductById = async (productId: string): Promise<Product | null>=>{
-        const res = await fetch(`https://fakestoreapi.com/products/${productId}`);
-        if(res.ok){
-            const data = await res.json();
-            return data;
+        const res = await api.get(`/products/${productId}`);
+        if(res.status === 200){
+            return res.data;
         }
         return null;
+
     };
 
     const viewProductByCategory = async (category: string): Promise<Product[]>=>{
@@ -50,3 +50,4 @@ export const ProductProvider: React.FC<{children: ReactNode}> = ({children})=>{
         </ProductContext.Provider>
     );
 }
+export default ProductContext;

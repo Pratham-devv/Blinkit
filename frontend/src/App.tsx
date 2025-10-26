@@ -8,11 +8,14 @@ import Product from "./pages/Product";
 import Profile from "./pages/Profile";
 import SignUp from "./pages/SignUp";
 import Footer from "./components/Footer";
+import { RootProvider } from "./Provider/RootProvider";
+import Order from "./pages/Order";
 
 
 export default function App() {
   return(
-   <Router>
+    <RootProvider>
+      <Router>
     <NavBar/>
     <Routes>
       
@@ -23,11 +26,14 @@ export default function App() {
       <Route path = '/cart' element={<Cart/>}/>
       <Route path = '/product' element={<Product/>}/>
       <Route path = '/products' element={<Products/>}/>
+      <Route path ='/order' element={<Order/>}/>
 
     </Routes>
     <Footer/>
       
    </Router>
+    </RootProvider>
+   
    
       
 

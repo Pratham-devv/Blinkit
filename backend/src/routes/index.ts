@@ -1,6 +1,7 @@
 import { Router } from "express";
 import authRoutes from "./auth.routes";
 import productRoutes from "./product.routes";
+import orderRoutes from "./order.routes";
 
 import cartRoutes from "./cart.routes";
 
@@ -10,6 +11,7 @@ console.log("Routes initialized");
 router.use("/auth", authRoutes)
 router.use("/products", productRoutes )
 router.use("/cart", cartRoutes )
+router.use("/orders", orderRoutes )
 
 
 export default router;

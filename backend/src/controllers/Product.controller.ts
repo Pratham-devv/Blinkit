@@ -2,6 +2,7 @@ import { Product } from "../models/product.model";
 import { Request, Response } from "express";
 
 
+ 
 export const viewProduct = async (req: Request, res: Response) => {
     try {
         const productId = req.params.id;
@@ -10,6 +11,15 @@ export const viewProduct = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "Product not found" });
         }
         res.status(200).json(product);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error }); 
+    }
+};
+
+export const viewAllProducts = async (req: Request, res: Response) => {
+    try {
+        const products = await Product.find();
+        res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
