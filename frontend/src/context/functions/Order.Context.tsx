@@ -48,9 +48,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     try {
       setLoading(true);
-      const res = await api.post("/orders/place", orderData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.post("/orders/placeOrder", orderData);
       console.log("Order placed:", res.data);
       await viewOrders();
     } catch (err: unknown) {

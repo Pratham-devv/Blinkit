@@ -7,13 +7,17 @@ import { useOrder } from "../context/hooks/Order.Hook";
 
 const Cart = () => {
   const {cartItems, addToCart, removeFromCart} = useCart();
+  console.log("here are the",cartItems)
   const {placeOrder} = useOrder();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const cartArray = Array.isArray(cartItems)
+  ? cartItems
+  : cartItems?.items || [];
    const handlePlaceOrder = ()=>{
     if(!token){
         navigate("/login");
-        return;
+        return; 
     }
     placeOrder({
       items: cartItems,
@@ -28,16 +32,29 @@ const Cart = () => {
     <div>
       Cart
       <div>
-        {cartItems.map(item=>(
-          <div key={item.products._id} className="border p-4 mb-4">
-            <h2 className="font-bold">{item.products.title}</h2>
-            <div><button onClick={()=>removeFromCart(item.products._id)}>-</button> {item.quantity} <button onClick={()=>addToCart(item.products,1)}>+</button></div>
-            <p>Price: ${item.products.price}</p>
-          </div>
-        ))}
+    {cartArray.length === 0 ? (
+      <p>Your cart is empty 🛒</p>
+    ) : (
+      cartArray.map((item, index) => {
+        // handle both array-based and object-based product structure
+        const product = Array.isArray(item.products)
+          ? item.products[0]
+          : item.products;
 
-        
-      </div>
+        return (
+          <div key={product?._id || index} className="border p-2 mb-3">
+            <h2>{product?.title || "Unnamed Product"}</h2>
+            <p>Price: ₹{product?.price ?? "N/A"}</p>
+            <div className="flex items-center gap-3">
+              <button onClick={() => removeFromCart(product?._id)}>-</button>
+              <span>{item.quantity}</span>
+              <button onClick={() => addToCart(product, 1)}>+</button>
+            </div>
+          </div>
+        );
+      })
+    )}
+  </div>
       <button
       onClick={handlePlaceOrder}
       >Place Order</button>

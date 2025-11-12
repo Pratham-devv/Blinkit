@@ -1,12 +1,10 @@
 import { Request, Response } from "express";
 import { User } from "../models/user.model";
 import { generateToken } from "../utils/generateToken";
+import { AuthiRequest } from "../middlewares/Auth.middleware";
 
-interface AuthRequest extends Request {
-    user?: { _id: string } | undefined;
-}
 
-export const signUp = async (req: AuthRequest, res: Response) => {
+export const signUp = async (req: Request, res: Response) => {
     try {
         const { username, email, password } = req.body;
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
@@ -15,7 +13,7 @@ export const signUp = async (req: AuthRequest, res: Response) => {
         }
         const user = new User({ username, email, password });
         await user.save();
-
+ 
         const token = generateToken(user._id.toString(), user.role);
 
         res.status(201).json({ token });
@@ -32,7 +30,14 @@ export const signIn = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "Invalid email or password" });
         } 
         const token = generateToken(user._id.toString(), user.role);
-        res.status(200).json({ token });
+        res.status(200).json({ token ,
+            user: {
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
@@ -43,23 +48,16 @@ export const signOut = async (req: Request, res: Response) => {
     res.status(200).json({ message: "Sign out successful on client side by deleting the token" });
 };
 
-export const getProfile = async (req: AuthRequest, res: Response) => {
+export const getProfile = async (req: AuthiRequest, res: Response) => {
     try {
-        const userId = (req.user as { _id: string })?._id; 
-        if (!userId) {
-            return res.status(401).json({ message: "Unauthorized" });
-        }
-        const user = await User.findById(userId).select('-password');
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-        res.status(200).json(user);
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error });
-    }   
+        res.json(req.user);
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ message: "Server error while fetching profile" });
+  }
 };
 
-export const updateProfile = async (req: AuthRequest, res: Response) => {
+export const updateProfile = async (req: AuthiRequest, res: Response) => {
     try {
         const userId = (req.user as { _id: string })?._id;
         if (!userId) {
@@ -80,7 +78,7 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
     }
 };
 
-export const deleteProfile = async (req: AuthRequest, res: Response) => {
+export const deleteProfile = async (req: AuthiRequest, res: Response) => {
     try {
         const userId = req.user?._id;
         if (!userId) {

@@ -1,47 +1,67 @@
 import {Cart} from "../models/cart.model";
 import {Request, Response} from "express";
 import { Order } from "../models/order.model";
+import { AuthiRequest } from "../middlewares/Auth.middleware";
+import mongoose from "mongoose";
 
-export interface OrderRequest extends Request {
-    user?: { _id: string } | undefined;
-}
-
-export const placeOrder = async (req: OrderRequest, res: Response) => {
-    try {
-        const userId = req.user?._id;
-        if (!userId) {
-            return res.status(401).json({ message: "Unauthorized" });
-        }
-        const cart = await Cart.findOne({ user: userId }).populate('items.products', 'title price');
-        if (!cart || cart.items.length === 0) {
-            return res.status(400).json({ message: "Cart is empty" });
-        }
-        const orderItems = cart.items.map(item => ({
-            product: item.products[0],
-            quantity: item.quantity,
-        }));
-        const totalAmount = cart.items.reduce((total, item) => {
-            const product = (item.products as any).price;
-            return total + (product.price * item.quantity);
-        }, 0);
-        const order = new Order({
-            user: userId,
-            products: orderItems,
-            totalAmount,
-            status: 'pending',
-        });
-        await order.save();
-        cart.items = [];
-        await cart.save();
-        res.status(201).json(order);
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error });
+export const placeOrder = async (req: AuthiRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
     }
+
+    // find user's cart and populate products
+    const cart = await Cart.findOne({ user: userId }).populate("items.products", "price title");
+    if (!cart || cart.items.length === 0) {
+      res.status(400).json({ message: "Your cart is empty" });
+      return;
+    }
+
+    // Place individual orders for each cart item
+    const orders = await Promise.all(
+      cart.items.map(async (item) => {
+        const product =
+          Array.isArray(item.products) && item.products.length > 0
+            ? item.products[0]
+            : item.products;
+        const price = (product as any)?.price || 0;
+
+        const totalAmount = price * item.quantity;
+
+        const newOrder = new Order({
+          user: userId,
+          product: product instanceof mongoose.Types.ObjectId || product,
+          quantity: item.quantity,
+          totalAmount,
+          status: "pending",
+        });
+
+        await newOrder.save();
+        return newOrder;
+      })
+    );
+
+    // Clear the cart after order placement
+    cart.items = [];
+    await cart.save();
+
+    res.status(201).json({
+      message: "Orders placed successfully",
+      orders,
+    });
+  } catch (error: any) {
+    console.error("❌ Order Error:", error.message);
+    res.status(500).json({ message: "Server error while placing orders", error: error.message });
+  }
 };
 
-export const viewOrders = async (req: OrderRequest, res: Response) => {
+
+
+export const viewOrders = async (req: AuthiRequest, res: Response) => {
     try {
-        const userId = req.user?._id;
+        const userId = req.user?._id.toString();
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
         }
@@ -53,9 +73,9 @@ export const viewOrders = async (req: OrderRequest, res: Response) => {
 };
 
 
-export const viewOrderDetails = async (req: OrderRequest, res: Response) => {
+export const viewOrderDetails = async (req: AuthiRequest, res: Response) => {
     try {
-        const userId = req.user?._id;
+        const userId = req.user?._id.toString();
         const orderId = req.params.id;
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
@@ -70,9 +90,9 @@ export const viewOrderDetails = async (req: OrderRequest, res: Response) => {
     }
 };
 
-export const cancelOrder = async (req: OrderRequest, res: Response) => {
+export const cancelOrder = async (req: AuthiRequest, res: Response) => {
     try {
-        const userId = req.user?._id;
+        const userId = req.user?._id.toString();
         const orderId = req.params.id;
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });

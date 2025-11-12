@@ -1,41 +1,54 @@
-import jwt from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
-import dotenv from 'dotenv';
+import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import dotenv from "dotenv";
+import { User, IUser  } from "../models/user.model";
 
 dotenv.config();
 
 export interface AuthiRequest extends Request {
-    user?: string | jwt.JwtPayload;
+  user?: any;
 }
 
-
-export const AuthMiddleware = (req: AuthiRequest, res: Response, next: NextFunction) => {
+export const AuthMiddleware = async (
+  req: AuthiRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'No token provided' });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "No token provided" });
     }
-    const token = authHeader.split(' ')[1] as string;
-    try {
-        const secret = process.env.JWT_SECRET as string;
-        if (!secret) {
-            throw new Error('JWT_SECRET is not defined in environment variables');
-        }
-        const decoded = jwt.verify(token , secret) as jwt.JwtPayload;
-        req.user = decoded;
-    } catch (error) {
-        return res.status(401).json({ message: 'Invalid token', error });
-    }
-    finally {
-        next();
-    }
-};
 
-export const AdminMiddleware = (req: AuthiRequest, res: Response, next: NextFunction) => {
-    if (!req.user || typeof req.user === 'string' || (req.user).role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, admin only' });
+    const token = authHeader.split(" ")[1] as string;
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET is not defined in environment variables");
+    } 
+    console.log("token from", token);
+
+    const decoded = jwt.verify(token, secret) as jwt.JwtPayload;
+    console.log(decoded);
+    const user = await User.findById(decoded.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+    console.log(user);
+
+    req.user = user;
     next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token", error });
+  }
 };
 
-
-
+export const AdminMiddleware = (
+  req: AuthiRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.user || typeof req.user === "string" || req.user.role !== "admin") {
+    return res.status(403).json({ message: "Access denied, admin only" });
+  }
+  next();
+};

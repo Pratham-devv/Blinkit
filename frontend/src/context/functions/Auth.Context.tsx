@@ -7,13 +7,13 @@ import api from "../../api/axiosInstance";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({children}: {children: React.ReactNode})=>{
-    const [user, setUser] = useState<User|null>(
-    localStorage.getItem("user")? JSON.parse(localStorage.getItem("user")! as string): null
-    );
-    const [token, setToken] = useState<string|null>(localStorage.getItem('token'));
+    const storedUser = localStorage.getItem("user");
+    console.log(storedUser);
+    const [user, setUser] = useState<User|null>(storedUser ? JSON.parse(storedUser) : null);
+    const [token, setToken] = useState<string|null>(localStorage.getItem('token')|| null);
 
     useEffect(()=>{
-         if(token && !user){
+         if(token && user){
             getProfile();
          }}
          // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -21,14 +21,16 @@ export const AuthProvider = ({children}: {children: React.ReactNode})=>{
 
     const signIn = async (email: string, password: string)=>{
         try {
-            setUser({email} as User); 
-            setToken("tempToken");
-            localStorage.setItem("token", "tempToken");
-            localStorage.setItem("user", JSON.stringify({email})); 
+            // setUser({email} as User); 
+            // setToken("tempToken");
+            // localStorage.setItem("token", "tempToken");
+            // localStorage.setItem("user", JSON.stringify({email})); 
 
             // Conntinue with actual API call
 
             const res = await api.post('/auth/signin', {email, password});
+            
+            console.log(res);
             setUser(res.data.user);
             setToken(res.data.token);
             localStorage.setItem("token", res.data.token);
@@ -64,15 +66,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode})=>{
     };
 
     const getProfile = async ()=>{
-        if(!token) return;
-        try {
-            const res = await api.get('/auth/profile');
-            setUser(res.data);
-            localStorage.setItem("user", JSON.stringify(res.data)); 
-        } catch (error) {
-            console.error("GetProfile error:", error);
-            logout();
-        }
+        
     };
 
   
