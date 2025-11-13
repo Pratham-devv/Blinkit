@@ -4,56 +4,86 @@ import { Order } from "../models/order.model";
 import { AuthiRequest } from "../middlewares/Auth.middleware";
 import mongoose from "mongoose";
 
-export const placeOrder = async (req: AuthiRequest, res: Response): Promise<void> => {
+export const placeOrder = async (req: AuthiRequest, res: Response) => {
   try {
     const userId = req.user?._id;
     if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // find user's cart and populate products
-    const cart = await Cart.findOne({ user: userId }).populate("items.products", "price title");
-    if (!cart || cart.items.length === 0) {
-      res.status(400).json({ message: "Your cart is empty" });
-      return;
-    }
+    // 🛒 Get user cart with populated products
+    const cart = await Cart.findOne({ user: userId }).populate(
+      "items.products",
+      "price title"
+    );
 
-    // Place individual orders for each cart item
-    const orders = await Promise.all(
-      cart.items.map(async (item) => {
+    if (!cart || !cart.items || cart.items.length === 0) {
+      return res.status(400).json({ message: "Your cart is empty" });
+    }
+    console.log(cart);
+
+    // 🧮 Calculate total amount safely
+    const totalAmount = cart.items.reduce((acc, item) => {
+      if (!item.products) return acc;
+
+      // Handle populated vs unpopulated products
+      const product = Array.isArray(item.products)
+        ? item.products[0]
+        : item.products;
+
+      if (!product) return acc; // skip undefined products
+
+      const price = (product as any).price ?? 0;
+      return acc + price * (item.quantity || 0);
+    }, 0);
+
+    console.log("Order amount",totalAmount);
+
+    // 🧱 Build order items array safely 
+    const orderItems = cart.items
+      .filter((item) => item.products && item.quantity > 0)
+      .map((item) => {
         const product =
           Array.isArray(item.products) && item.products.length > 0
             ? item.products[0]
             : item.products;
-        const price = (product as any)?.price || 0;
+        console.log("order Product",product);
 
-        const totalAmount = price * item.quantity;
+        const productId = new mongoose.Types.ObjectId(product as any);
 
-        const newOrder = new Order({
-          user: userId,
-          product: product instanceof mongoose.Types.ObjectId || product,
+        return {
+          product: productId,
           quantity: item.quantity,
-          totalAmount,
-          status: "pending",
-        });
+        };
+      });
 
-        await newOrder.save();
-        return newOrder;
-      })
-    );
+    // 🚫 Guard clause: if no valid products
+    if (orderItems.length === 0) {
+      return res.status(400).json({ message: "No valid products in cart" });
+    }
 
-    // Clear the cart after order placement
+    // 🆕 Create new order
+    const newOrder = await Order.create({
+      user: userId,
+      items: orderItems,
+      totalAmount,
+      status: "pending",
+    });
+
+    // 🧹 Clear cart
     cart.items = [];
     await cart.save();
 
-    res.status(201).json({
-      message: "Orders placed successfully",
-      orders,
+    return res.status(201).json({
+      message: "Order placed successfully",
+      order: newOrder,
     });
   } catch (error: any) {
-    console.error("❌ Order Error:", error.message);
-    res.status(500).json({ message: "Server error while placing orders", error: error.message });
+    console.error("❌ Order error:", error);
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 

@@ -1,14 +1,19 @@
 import mongoose, {Schema, Document}  from "mongoose";
 
+interface IOrderItem{
+    product: mongoose.Types.ObjectId;
+    quantity: Number;
+};
+
 export default interface IOrder extends Document{
     user: mongoose.Types.ObjectId;
-    products: { product: mongoose.Types.ObjectId; quantity: number }[]; // Array of products with quantities
+    items: IOrderItem[];
     totalAmount: number;
     status: 'pending' | 'shipped' | 'delivered' | 'cancelled';
 }
 const orderSchema = new Schema<IOrder>({
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    products: [{
+    items: [{
         product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
         quantity: { type: Number, required: true, min: 1 }
     }],
