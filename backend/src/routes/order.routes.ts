@@ -9,6 +9,6 @@ router.get("/",AuthMiddleware ,viewOrders);
 router.get("/:id",AuthMiddleware ,viewOrderDetails);
 router.post("/placeOrder",AuthMiddleware ,placeOrder);
 router.delete("/:id", AuthMiddleware, cancelOrder);
-
+ 
 
 export default router;

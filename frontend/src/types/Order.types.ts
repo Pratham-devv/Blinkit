@@ -1,8 +1,13 @@
-import type { CartItem } from "./Cart.types";
+import type { Product } from './Product.types';
+
+export interface OrderItem{
+  products: Product;
+  quantity: number;
+}
 
 export interface Order {
   _id: string;
-  items: CartItem[];
+  items: OrderItem[];
   totalAmount: number;
   status: 'pending'| 'shipped'| 'delivered'| 'cancelled';
   createdAt: string;
@@ -10,7 +15,7 @@ export interface Order {
 
 
 export interface PlaceOrderInput {
-  items: CartItem[];
+  items: OrderItem[];
   totalAmount: number;
   shippingAddress?: string;
   paymentMethod?: 'card' | 'cash' | 'wallet';
@@ -19,7 +24,7 @@ export interface PlaceOrderInput {
 
 export interface OrderContextType {
   orders: Order[];
-  placeOrder: (orderData: PlaceOrderInput) => Promise<void>; 
+  placeOrder: (orderData: PlaceOrderInput) => Promise<Order | null | undefined>; 
   viewOrders: () => Promise<void>;
   viewOrderDetails: (orderId: string) => Promise<Order | null>;
   cancelOrder: (orderId: string) => Promise<void>;

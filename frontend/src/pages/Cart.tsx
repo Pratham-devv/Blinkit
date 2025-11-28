@@ -10,22 +10,30 @@ const Cart = () => {
   console.log("here are the",cartItems)
   const {placeOrder} = useOrder();
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token"); 
   const cartArray = Array.isArray(cartItems)
   ? cartItems
   : cartItems?.items || [];
-   const handlePlaceOrder = ()=>{
+   const handlePlaceOrder = async ()=>{
     if(!token){
-        navigate("/login");
-        return; 
+      
+        navigate(`/login`);
+        return;
     }
-    placeOrder({
+    const order = await placeOrder({ 
       items: cartItems,
       totalAmount: cartItems.reduce((acc, item) => acc + item.products.price * item.quantity, 0),
     });
-    navigate("/order");
+    console.log("order is",order);
+
+    const orderId = order!._id; 
+    console.log(orderId); 
+    if(order&& orderId){
+      navigate(`/order/success/${orderId}`);
+      window.location.reload();
+    }
     
-   }
+    }
 
 
   return (

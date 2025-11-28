@@ -4,7 +4,7 @@ import { generateToken } from "../utils/generateToken";
 import { AuthiRequest } from "../middlewares/Auth.middleware";
 
 
-export const signUp = async (req: Request, res: Response) => {
+export const signUp = async (req: Request, res: Response) => { 
     try {
         const { username, email, password } = req.body;
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
@@ -36,6 +36,8 @@ export const signIn = async (req: Request, res: Response) => {
                 username: user.username,
                 email: user.email,
                 role: user.role,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt
             }
         });
     } catch (error) {
@@ -54,8 +56,8 @@ export const getProfile = async (req: AuthiRequest, res: Response) => {
   } catch (error) {
     console.error("Error fetching profile:", error);
     res.status(500).json({ message: "Server error while fetching profile" });
-  }
-};
+  } 
+}; 
 
 export const updateProfile = async (req: AuthiRequest, res: Response) => {
     try {
@@ -80,7 +82,7 @@ export const updateProfile = async (req: AuthiRequest, res: Response) => {
 
 export const deleteProfile = async (req: AuthiRequest, res: Response) => {
     try {
-        const userId = req.user?._id;
+        const userId = req.user?._id.toString();
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
         }

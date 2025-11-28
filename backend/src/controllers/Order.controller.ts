@@ -95,7 +95,7 @@ export const viewOrders = async (req: AuthiRequest, res: Response) => {
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
         }
-        const orders = await Order.find({ user: userId }).populate('products.product', 'title price').sort({ createdAt: -1 });
+        const orders = await Order.find({ user: userId }).populate('items.product', 'title price image').sort({ createdAt: -1 });
         res.status(200).json(orders);
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
@@ -107,10 +107,11 @@ export const viewOrderDetails = async (req: AuthiRequest, res: Response) => {
     try {
         const userId = req.user?._id.toString();
         const orderId = req.params.id;
+        console.log("Order ID Param:", orderId);
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
         }
-        const order = await Order.findOne({ _id: orderId, user: userId }).populate('products.product', 'title price');
+        const order = await Order.findOne({ _id: orderId, user: userId }).populate('items.product', 'title price description image');
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
         }

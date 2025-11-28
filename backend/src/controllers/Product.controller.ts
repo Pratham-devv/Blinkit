@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 export const viewProduct = async (req: Request, res: Response) => {
     try {
         const productId = req.params.id;
-        const product = await Product.findById(productId);                  // retrieve product by ID react se.. yaad rkhio yaha full view dena
+        const product = await Product.findById(productId);                 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
@@ -39,20 +39,19 @@ export const viewProductByCategory = async (req: Request, res: Response) => {
 
 export const searchProducts = async (req: Request, res: Response) => {
     try {
-        const { query } = req.query;
+        const  query  = req.query.q;
         if (!query || typeof query !== 'string') {
             return res.status(400).json({ message: "Query parameter is required and must be a string" });
         }
         const products = await Product.find({ title: { $regex: query, $options: 'i' } })
-            .populate('category', 'name')
             .sort({ createdAt: -1 });
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
-    }   
+    }
 };
 export const postManyProducts = async (req: Request, res: Response) => {
-    try {
+    try { 
         const productsData = req.body; // Expecting an array of products in the request body
         if (!Array.isArray(productsData) || productsData.length === 0) {
             return res.status(400).json({ message: "Request body must be a non-empty array of products" });

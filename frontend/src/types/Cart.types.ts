@@ -7,8 +7,8 @@ export interface CartItem{
 
 export interface CartContextType{
     cartItems: CartItem[];
+    localCartItems?: CartItem[];
     addToCart: (product: Product, quantity?: number )=> void;
     removeFromCart: (productId: string)=> void;
     clearCart: ()=> void;
-    viewCart: ()=> void;
 }

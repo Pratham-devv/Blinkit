@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { useAuth } from "../context/hooks/Auth.Hook";
+import {  useLocation, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+  
 
   return (
     <div>
@@ -12,6 +16,9 @@ const Login = () => {
         onSubmit={(e) => {
           e.preventDefault();
           signIn( email, password );
+          const redirectTo = location.state?.from || '/';
+          navigate(redirectTo, { replace: true });
+
         }}
       >
         Sign In
@@ -27,7 +34,7 @@ const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit">Sign Up</button>
+        <button type="submit">Sign In</button>
       </form>
     </div>
   );

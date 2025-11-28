@@ -27,9 +27,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!token) return;
     try {
       setLoading(true);
-      const res = await api.get("/orders", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/orders");
       setOrders(res.data);
       setError(null);
     } catch (err: unknown) {
@@ -40,7 +38,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  
+
   const placeOrder = async (orderData: PlaceOrderInput) => {
     if (!token) {
       setError("User not authenticated");
@@ -50,7 +48,12 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setLoading(true);
       const res = await api.post("/orders/placeOrder", orderData);
       console.log("Order placed:", res.data);
-      await viewOrders();
+      console.log("Order ID:", res.data.order._id);
+      localStorage.setItem("orderId", res.data.order._id);
+      const orderDetail = await viewOrderDetails(res.data.order._id);
+      console.log("Fetched Order Details:", orderDetail);
+      setError(null);
+      return orderDetail || null;
     } catch (err: unknown) {
       console.error("Error placing order:", err);
       setError(getErrorMessage(err));
@@ -60,13 +63,12 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
 
-  const viewOrderDetails = async (orderId: string): Promise<Order | null> => {
+  const viewOrderDetails = async(orderId: string): Promise<Order | null> => {
     if (!token) return null;
     try {
       setLoading(true);
-      const res = await api.get(`/orders/${orderId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/orders/${orderId}`);
+      console.log("Fetched Order Detailsss:", res.data);
       return res.data;
     } catch (err: unknown) {
       console.error("Error fetching order details:", err);
