@@ -37,7 +37,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }));
 
           const mergeRes = await api.post("/cart/merge", { items: mergePayload });
-          const mergedItems: CartItem[] = (mergeRes.data.items || []).map((item: any) => ({
+          const mergedItems: CartItem[] = (mergeRes.data.items || []).map((item: CartItem) => ({
             products: item.products,    // populated product from backend
             quantity: item.quantity,
           }));
@@ -57,7 +57,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 3️⃣ If no local cart or merge failed → just fetch backend cart
       try {
         const res = await api.get("/cart");
-        const backendItems: CartItem[] = (res.data.items || []).map((item: any) => ({
+        const backendItems: CartItem[] = (res.data.items || []).map((item: CartItem) => ({
           products: item.products,
           quantity: item.quantity,
         }));
@@ -168,6 +168,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const removeItemCompletely = async (productId: string) => {
+    if (!token) {
+      setLocalCartItems((prev) => {
+        const updated = prev.filter((i) => i.products._id !== productId);
+        localStorage.setItem("cartItems", JSON.stringify(updated));
+        return updated;
+      });
+      return;
+    }
+    setCartItems((prev) => {    
+      const updated = prev.filter((i) => i.products._id !== productId);
+      return updated;
+    });
+    try {
+      await api.delete("/cart/clearItem", { data: { productId } });
+    } catch (err) {
+      console.error("❌ Error removing item completely from backend cart:", err);
+    }
+  };
+
   // 🧩 Clear Cart
   const clearCart = async () => {
     setCartItems([]);
@@ -185,7 +205,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, clearCart, localCartItems }}
+      value={{ cartItems, addToCart, removeFromCart, clearCart, localCartItems, removeItemCompletely }}
     >
       {children}
     </CartContext.Provider>

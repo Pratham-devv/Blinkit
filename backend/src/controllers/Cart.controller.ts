@@ -60,6 +60,8 @@ export const viewCart = async (req: AuthiRequest, res: Response) => {
     }
 };
 
+
+
 export const removeFromCart = async (req: AuthiRequest, res: Response) => {
     try {
         const userId = req.user?._id.toString();;
@@ -81,6 +83,30 @@ export const removeFromCart = async (req: AuthiRequest, res: Response) => {
         } else {
             return res.status(404).json({ message: "Product not found in cart" });
         } 
+        await cart.save();
+        res.status(200).json(cart);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+export const removeItemCompletely = async (req: AuthiRequest, res: Response) => {
+    try {
+        const userId = req.user?._id.toString();
+        const { productId } = req.body;
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+        const cart = await Cart.findOne({ user: userId });
+        if (!cart) {
+            return res.status(404).json({ message: "Cart not found" });
+        }
+        const existingItem = cart.items.find((item) => String(item.products?._id || item.products) === String(productId));
+        if (existingItem) {
+            cart.items = cart.items.filter((item) => String(item.products?._id || item.products) !== String(productId));
+        } else {
+            return res.status(404).json({ message: "Product not found in cart" });
+        }
         await cart.save();
         res.status(200).json(cart);
     } catch (error) {

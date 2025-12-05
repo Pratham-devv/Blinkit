@@ -58,12 +58,26 @@ export const AuthProvider = ({children}: {children: React.ReactNode})=>{
             throw error;
         } 
     };
-    const updateProfile = (userData: Partial<User>)=>{
-        if(!user) return;
-        const updatedUser = {...user, ...userData};
+
+const updateProfile = async (userData: Partial<User>) => {
+    try {
+        const res = await api.put("auth/profile/update", userData);
+
+        const updatedUser = res.data.user;
+
         setUser(updatedUser);
         localStorage.setItem("user", JSON.stringify(updatedUser));
-    };
+
+        return { success: true, message: res.data.message };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.response?.data?.message || "Update failed",
+        };
+    }
+};
+
 
     const getProfile = async ()=>{
         

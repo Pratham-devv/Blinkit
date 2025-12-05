@@ -8,7 +8,7 @@ router.get("/test", (req, res) => { res.send("Auth route is working"); });
 router.post("/signup", signUp);
 router.post("/signin", signIn);
 router.get("/profile", AuthMiddleware, getProfile);
-router.put("/profile", AuthMiddleware, updateProfile);
+router.put("/profile/update", AuthMiddleware, updateProfile);
 router.delete("/profile", AuthMiddleware, deleteProfile);
 
 export default router;

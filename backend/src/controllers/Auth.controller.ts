@@ -62,23 +62,38 @@ export const getProfile = async (req: AuthiRequest, res: Response) => {
 export const updateProfile = async (req: AuthiRequest, res: Response) => {
     try {
         const userId = (req.user as { _id: string })?._id;
+
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
         }
+
         const { username, email, password } = req.body;
+
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+
         if (username) user.username = username;
         if (email) user.email = email;
         if (password) user.password = password;
+
         await user.save();
-        res.status(200).json({ message: "Profile updated successfully" });
+
+        return res.status(200).json({
+            message: "Profile updated successfully",
+            user: {
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                createdAt: user.createdAt
+            }
+        });
     } catch (error) {
-        res.status(500).json({ message: "Server error", error });
+        return res.status(500).json({ message: "Server error", error });
     }
 };
+
 
 export const deleteProfile = async (req: AuthiRequest, res: Response) => {
     try {
