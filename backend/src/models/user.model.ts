@@ -10,6 +10,10 @@ export interface IUser extends Document {
     role: 'user' | 'admin';
     createdAt: Date;
     updatedAt: Date;
+    otp: {
+        code: string | null;
+        expiresAt: Date | null;
+    }
     comparePassword(candidatePassword: string): Promise<boolean>;
     
 }
@@ -21,6 +25,10 @@ const userSchema = new Schema<IUser>({
     role: { type: String, enum: ['user', 'admin'], default: 'user' }, 
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    otp: {
+        code: { type: String, default: null },
+        expiresAt: { type: Date, default: null }
+    }
 }, { timestamps: true });
 
 

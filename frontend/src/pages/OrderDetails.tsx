@@ -13,261 +13,270 @@ import {
   CreditCard,
   ShoppingBag,
   Loader2,
-  Receipt
+  Receipt,
 } from "lucide-react";
+
 
 const OrderDetails = () => {
   const { viewOrderDetails, loading } = useOrder();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [details, setDetails] = useState<any>(null);
   const { orderId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadOrder = async () => {
-      if (!orderId) return;
-
-      const data = await viewOrderDetails(orderId);
-      setDetails(data);
-    };
-
-    loadOrder();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!orderId) return;
+    viewOrderDetails(orderId).then((res) => setDetails(res));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getStatusColor = (status: string) => {
-    const statusLower = status.toLowerCase();
-    if (statusLower === "delivered" || statusLower === "completed") {
-      return "bg-green-100 text-green-700 border-green-200";
-    } else if (statusLower === "cancelled" || statusLower === "failed") {
-      return "bg-red-100 text-red-700 border-red-200";
-    } else if (statusLower === "processing" || statusLower === "pending") {
-      return "bg-yellow-100 text-yellow-700 border-yellow-200";
-    } else if (statusLower === "shipped" || statusLower === "out for delivery") {
-      return "bg-blue-100 text-blue-700 border-blue-200";
-    }
-    return "bg-gray-100 text-gray-700 border-gray-200";
+  // ========== STATUS UI ==========
+
+  const STATUS_STYLES: Record<string, string> = {
+    delivered:
+      "bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
+    completed:
+      "bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
+
+    cancelled:
+      "bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700",
+    failed:
+      "bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700",
+
+    processing:
+      "bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700",
+    pending:
+      "bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700",
+
+    shipped:
+      "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
+    "out for delivery":
+      "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
   };
 
+  const getStatusColor = (status: string) =>
+    STATUS_STYLES[status.toLowerCase()] ||
+    "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600";
+
   const getStatusIcon = (status: string) => {
-    const statusLower = status.toLowerCase();
-    if (statusLower === "delivered" || statusLower === "completed") {
-      return <CheckCircle className="w-6 h-6" />;
-    } else if (statusLower === "cancelled" || statusLower === "failed") {
-      return <XCircle className="w-6 h-6" />;
-    } else if (statusLower === "shipped" || statusLower === "out for delivery") {
-      return <Truck className="w-6 h-6" />;
-    }
+    const s = status.toLowerCase();
+    if (["delivered", "completed"].includes(s)) return <CheckCircle className="w-6 h-6" />;
+    if (["cancelled", "failed"].includes(s)) return <XCircle className="w-6 h-6" />;
+    if (["shipped", "out for delivery"].includes(s)) return <Truck className="w-6 h-6" />;
     return <Clock className="w-6 h-6" />;
   };
 
+  // ========== LOADING UI ==========
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative inline-block">
-            <Loader2 className="w-16 h-16 text-emerald-500 animate-spin" />
-            <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping" />
-          </div>
-          <p className="mt-6 text-lg font-medium text-gray-600">
-            Loading order details...
-          </p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <Loader2 className="w-16 h-16 text-emerald-500 animate-spin" />
       </div>
     );
   }
 
   if (!details) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="bg-gradient-to-br from-gray-100 to-gray-200 p-8 rounded-full mb-6 inline-block">
-            <Package className="w-24 h-24 text-gray-400" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Order not found
-          </h2>
-          <p className="text-gray-500 mb-8">
-            We couldn't find the order you're looking for.
-          </p>
-          <button
-            onClick={() => navigate("/orders")}
-            className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-          >
-            View All Orders
-          </button>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-center px-4">
+        <Package className="w-20 h-20 text-gray-400 dark:text-gray-500 mb-6" />
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Order Not Found</h2>
+        <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-sm">
+          We couldn't find your order details.
+        </p>
+
+        <button
+          onClick={() => navigate("/order")}
+          className="mt-6 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition"
+        >
+          View All Orders
+        </button>
       </div>
     );
   }
 
+  // ========== PRICE TOTAL ==========
+
   const itemsTotal = details.items.reduce(
-    (acc: number, item: OrderItem) => acc + (item.product?.price || 0) * item.quantity,
+    (acc: number, item: any) => acc + (item.product?.price || 0) * item.quantity,
     0
   );
 
-  return(
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/orders")}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6 text-gray-700" />
-            </button>
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-emerald-400 to-emerald-600 p-2 rounded-xl">
-                <Receipt className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Order Details</h1>
-                <p className="text-sm text-gray-500">
-                  #{details._id.slice(-8).toUpperCase()}
-                </p>
-              </div>
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 w-full">
+      {/* HEADER */}
+      <div className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-20">
+        <div className="max-w-full lg:max-w-6xl mx-auto px-3 sm:px-4 py-4 flex items-center gap-4">
+          <button
+            onClick={() => navigate("/order")}
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+          </button>
+
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600">
+              <Receipt className="w-6 h-6 text-white" />
+            </div>
+
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                Order Details
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                #{details._id.slice(-8).toUpperCase()}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Status Card */}
-            <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-xl ${getStatusColor(details.status).replace('text-', 'bg-').replace('bg-', 'bg-')}`}>
-                    {getStatusIcon(details.status)}
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Order Status</p>
-                    <h3 className="text-2xl font-bold text-gray-900 capitalize">
-                      {details.status}
-                    </h3>
-                  </div>
-                </div>
-                <div className={`px-4 py-2 rounded-xl border-2 ${getStatusColor(details.status)}`}>
-                  <span className="font-semibold capitalize">{details.status}</span>
-                </div>
+      {/* BODY */}
+      <div className="max-w-full lg:max-w-6xl mx-auto px-3 sm:px-4 py-6 space-y-6">
+
+        {/* STATUS CARD */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-xl border ${getStatusColor(details.status)}`}>
+                {getStatusIcon(details.status)}
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Current Status</p>
+                <h3 className="text-2xl font-bold capitalize text-gray-900 dark:text-white">
+                  {details.status}
+                </h3>
               </div>
             </div>
 
-            {/* Order Items */}
-            <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+            <span
+              className={`px-4 py-2 rounded-xl text-sm font-semibold border ${getStatusColor(
+                details.status
+              )}`}
+            >
+              {details.status}
+            </span>
+          </div>
+        </div>
+
+        {/* GRID LAYOUT */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
+
+          {/* LEFT SIDE */}
+          <div className="lg:col-span-2 space-y-6">
+
+            {/* ITEMS CARD */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 w-full">
               <div className="flex items-center gap-2 mb-6">
                 <ShoppingBag className="w-6 h-6 text-emerald-600" />
-                <h2 className="text-xl font-bold text-gray-900">Order Items</h2>
-                <span className="ml-2 text-sm text-gray-500">
-                  ({details.items.length} {details.items.length === 1 ? "item" : "items"})
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Order Items</h2>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  ({details.items.length})
                 </span>
               </div>
 
               <div className="space-y-4">
-                {details.items.map((item: OrderI, index: number) => {
-                  const product = item.product;
-
-                  return (
-                    <div
-                      key={index}
-                      className="flex gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
-                    >
-                      {/* Product Image Placeholder */}
-                      <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Package className="w-8 h-8 text-emerald-600" />
-                      </div>
-
-                      {/* Product Details */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 mb-1 text-lg">
-                          {product?.title || "Product"}
-                        </h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span>Quantity: {item.quantity}</span>
-                          <span>•</span>
-                          <span className="font-semibold text-emerald-600">
-                            ₹{product?.price || 0}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Item Total */}
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-gray-900">
-                          ₹{((product?.price || 0) * item.quantity).toFixed(2)}
-                        </p>
-                        <p className="text-xs text-gray-500">Total</p>
-                      </div>
+                {details.items.map((item: any, index: number) => (
+                  <div
+                    key={index}
+                    className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl w-full"
+                  >
+                    {/* Product Icon */}
+                    <div className="min-w-16 min-h-16 w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 bg-emerald-100 dark:bg-emerald-800 rounded-xl flex items-center justify-center">
+                      <Package className="w-8 h-8 text-emerald-600 dark:text-emerald-300" />
                     </div>
-                  );
-                })}
+
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-lg ">
+                        {item.product?.title}
+                      </h3>
+
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        Qty: {item.quantity} •{" "}
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                          ₹{item.product?.price}
+                        </span>
+                      </p>
+                    </div>
+
+                    {/* Total */}
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">
+                        ₹{(item.product?.price * item.quantity).toFixed(2)}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Item Total</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Order Summary */}
-            <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 sticky top-24">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Order Summary
+          {/* RIGHT SIDE SUMMARY */}
+          <div className="space-y-6 w-full">
+
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 w-full lg:sticky lg:top-24">
+
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                Summary
               </h2>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center gap-3 text-gray-600">
-                  <Calendar className="w-5 h-5 text-emerald-600" />
+              <div className="space-y-4">
+
+                {/* Order ID */}
+                <div className="flex items-start gap-3">
+                  <Calendar className="text-emerald-600 w-5 h-5" />
                   <div>
-                    <p className="text-xs text-gray-500">Order ID</p>
-                    <p className="font-semibold text-gray-900">{details._id}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Order ID</p>
+                    <p className="font-medium text-gray-900 dark:text-white break-all">
+                      {details._id}
+                    </p>
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 pt-4 space-y-3">
-                  <div className="flex justify-between text-gray-600">
+                {/* Price breakdown */}
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+
+                  <div className="flex justify-between text-gray-600 dark:text-gray-400">
                     <span>Subtotal</span>
-                    <span className="font-semibold">₹{itemsTotal.toFixed(2)}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      ₹{itemsTotal.toFixed(2)}
+                    </span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Delivery Fee</span>
-                    <span className="font-semibold text-emerald-600">FREE</span>
-                  </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Tax</span>
-                    <span className="font-semibold">₹0.00</span>
-                  </div>
-                </div>
 
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="flex justify-between text-lg font-bold text-gray-900">
-                    <span>Total Amount</span>
-                    <span className="text-emerald-600">
+                  <div className="flex justify-between text-gray-600 dark:text-gray-400 mt-2">
+                    <span>Delivery</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                      FREE
+                    </span>
+                  </div>
+
+                  <div className="border-t border-gray-200 dark:border-gray-700 mt-3 pt-3 flex justify-between text-lg font-bold">
+                    <span>Total</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">
                       ₹{details.totalAmount.toFixed(2)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Additional Info */}
-              <div className="space-y-3 pt-6 border-t border-gray-200">
+              {/* Address */}
+              <div className="border-t border-gray-200 dark:border-gray-700 mt-6 pt-6 space-y-4">
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                  <MapPin className="w-5 h-5 text-emerald-600" />
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Delivery Address</p>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Address</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
                       Home Address
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <CreditCard className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                  <CreditCard className="w-5 h-5 text-emerald-600" />
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Payment Method</p>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Payment</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
                       Cash on Delivery
                     </p>
                   </div>
@@ -276,15 +285,17 @@ const OrderDetails = () => {
             </div>
 
             {/* Help Section */}
-            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-6 border border-emerald-200">
-              <h3 className="font-bold text-gray-900 mb-2">Need Help?</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Have questions about your order? We're here to help!
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 w-full">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Need Help?</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Our support team is here for you 24/7.
               </p>
-              <button className="w-full bg-white text-emerald-600 py-3 rounded-xl font-semibold hover:bg-emerald-50 transition-colors border-2 border-emerald-200">
+
+              <button className="mt-4 w-full py-3 rounded-xl bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 font-semibold border-2 border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition">
                 Contact Support
               </button>
             </div>
+
           </div>
         </div>
       </div>

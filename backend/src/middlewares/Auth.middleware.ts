@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { User, IUser  } from "../models/user.model";
+import rateLimit from "express-rate-limit";
 
 dotenv.config();
 
@@ -41,6 +42,12 @@ export const AuthMiddleware = async (
     return res.status(401).json({ message: "Invalid token", error });
   }
 };
+
+export const rateLimiter = rateLimit({
+  windowMs:  60 * 1000, // 1 minute
+  max: 3, // limit each IP to 3 requests per windowMs
+  message: "Too many requests from this IP, please try again after a minute"
+});
 
 export const AdminMiddleware = (
   req: AuthiRequest,

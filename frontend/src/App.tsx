@@ -18,23 +18,24 @@ export default function App() {
   return (
     <RootProvider>
       <Router>
-        <div className="flex min-h-screen">
+        <Footer />
+        <div className="flex flex-col md:flex-row min-h-screen w-full overflow-x-hidden">
+          
           {/* Footer/Sidebar Navigation */}
-          <Footer />
+          
 
           {/* Main Content Area */}
           <div className="flex-1 flex flex-col md:ml-20 lg:ml-24">
-            {/* NavBar */}
-           
 
-            {/* Page Content with bottom padding for mobile footer */}
+            {/* Page Content */}
             <main className="flex-1 pb-16 md:pb-0">
               <Routes>
-                
+
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/account" element={<Profile />} />
+
                 <Route
                   path="/cart"
                   element={
@@ -43,12 +44,14 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
+
                 <Route path="/productDetails/:productId" element={<ProductDetails />} />
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/order" element={<Order />} />
                 <Route path="/order/success/:orderId" element={<OrderStatus />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/orderDetails/:orderId" element={<OrderDetails />} />
+
               </Routes>
             </main>
           </div>

@@ -3,6 +3,7 @@ import api from "../../api/axiosInstance";
 
 import type { OrderContextType, Order , PlaceOrderInput} from "../../types/Order.types";
 import axios from "axios";
+import { useAuth } from "../hooks/Auth.Hook";
 
 const getErrorMessage = (err: unknown): string => {
   if (axios.isAxiosError(err)) {
@@ -20,7 +21,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const token = localStorage.getItem("token");
+  const token = useAuth()?.token || null;
 
   
   const viewOrders = async () => {

@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext,  useState } from "react";
 import type { AuthContextType } from "../../types/Auth.types";
 import type { User } from "../../types/User.types";
 import api from "../../api/axiosInstance";
@@ -11,35 +11,47 @@ export const AuthProvider = ({children}: {children: React.ReactNode})=>{
     console.log(storedUser);
     const [user, setUser] = useState<User|null>(storedUser ? JSON.parse(storedUser) : null);
     const [token, setToken] = useState<string|null>(localStorage.getItem('token')|| null);
-
-    useEffect(()=>{
-         if(token && user){
-            getProfile();
-         }}
-         // eslint-disable-next-line react-hooks/exhaustive-deps
-         ,[token]);
-
-    const signIn = async (email: string, password: string)=>{
+    const [loading, setLoading] = useState(false);
+    const signIn = async (email: string)=>{
+        setLoading(true);
         try {
-            // setUser({email} as User); 
-            // setToken("tempToken");
-            // localStorage.setItem("token", "tempToken");
-            // localStorage.setItem("user", JSON.stringify({email})); 
-
-            // Conntinue with actual API call
-
-            const res = await api.post('/auth/signin', {email, password});
-            
-            console.log(res);
-            setUser(res.data.user);
-            setToken(res.data.token);
-            localStorage.setItem("token", res.data.token);
-            localStorage.setItem("user", JSON.stringify(res.data.user)); 
+           
+            const res = await api.post('/auth/signin', {email});
+            setLoading(false);
+             return { success: true, message: res.data?.message || "OTP sent" };           
         } catch (error) {
+            setLoading(false);
             console.error("SignIn error:", error);
             throw error;
         }
     };
+
+    const verifyOtp = async (email: string, otp: string) => {
+        setLoading(true);
+        try {
+      const res = await api.post("/auth/otp/verify", { email, otp });
+      const token = res.data?.token;
+      const returnedUser = res.data?.user;
+      if (token && returnedUser) {
+        localStorage.setItem("token", token);
+        setToken(token);
+        setUser(returnedUser as User);
+        localStorage.setItem("user", JSON.stringify(returnedUser));
+        setLoading(false);
+        return { success: true, message: res.data?.message || "Logged in" };
+      } else {
+        return { success: false, message: "Invalid server response" };
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+        setLoading(false);
+      return {
+        success: false,
+        message: err.response?.data?.message || "Failed to verify OTP",
+      };
+    }
+    };
+
     const logout = ()=>{
         setUser(null);
         setToken(null);
@@ -48,15 +60,25 @@ export const AuthProvider = ({children}: {children: React.ReactNode})=>{
     };
     const signUp = async (username: string, email: string, password: string)=>{
         try {
-            const res = await api.post('/auth/signup', {username, email, password});
-            setUser(res.data.user);
-            setToken(res.data.token);
-            localStorage.setItem("token", res.data.token);
-            localStorage.setItem("user", JSON.stringify(res.data.user)); 
-        } catch (error) {
-            console.error("SignUp error:", error);
-            throw error;
-        } 
+      const res = await api.post("/auth/signup", { username, email, password });
+      const token = res.data?.token;
+      const returnedUser = res.data?.user;
+      if (token && returnedUser) {
+        localStorage.setItem("token", token);
+        setToken(token);
+        setUser(returnedUser as User);
+        localStorage.setItem("user", JSON.stringify(returnedUser));
+        setLoading(false);
+        return { success: true, message: res.data?.message || "Account created" };
+      } else {
+        setLoading(false);
+        return { success: false, message: "Invalid server response" };
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setLoading(false);
+      return { success: false, message: err.response?.data?.message || "Sign up failed" };
+    }
     };
 
 const updateProfile = async (userData: Partial<User>) => {
@@ -78,18 +100,13 @@ const updateProfile = async (userData: Partial<User>) => {
     }
 };
 
-
-    const getProfile = async ()=>{
-        
-    };
-
   
 
 
     
 
     return (
-        <AuthContext.Provider value={{user, token, signIn, logout, signUp , updateProfile, getProfile}}>
+        <AuthContext.Provider value={{user, token, signIn, logout, signUp , updateProfile, verifyOtp, loading}}>
             {children}
         </AuthContext.Provider>
     );

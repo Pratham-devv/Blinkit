@@ -2,24 +2,27 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/hooks/Cart.Hook";
 import { useOrder } from "../context/hooks/Order.Hook";
 import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, ShoppingCart } from "lucide-react";
+import { useAuth } from "../context/hooks/Auth.Hook";
+
 
 const Cart = () => {
   const { cartItems, addToCart, removeFromCart, removeItemCompletely } = useCart();
-  const { placeOrder } = useOrder(); 
+  const { placeOrder } = useOrder();
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-  
+  const { user} =  useAuth();
+
+
   const cartArray = Array.isArray(cartItems)
     ? cartItems
-    : cartItems?.items || [];
+    : (cartItems as any)?.items || [];
 
   const totalAmount = cartArray.reduce(
-    (acc, item) => acc + (item.products?.price || 0) * item.quantity,
+    (acc: any, item: any) => acc + (item.products?.price || 0) * item.quantity,
     0
   );
 
   const handlePlaceOrder = async () => {
-    if (!token) {
+    if (!user) {
       navigate(`/login`);
       return;
     }
