@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useOrder } from "../context/hooks/Order.Hook";
 import { useNavigate } from "react-router-dom";

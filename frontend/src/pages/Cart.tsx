@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/hooks/Cart.Hook";
 import { useOrder } from "../context/hooks/Order.Hook";
@@ -17,6 +18,7 @@ const Cart = () => {
     : (cartItems as any)?.items || [];
 
   const totalAmount = cartArray.reduce(
+    
     (acc: any, item: any) => acc + (item.products?.price || 0) * item.quantity,
     0
   );
@@ -89,7 +91,7 @@ const Cart = () => {
           <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-3 sm:space-y-4">
-              {cartArray.map((item, index) => {
+              {cartArray.map((item: any, index: number) => {
                 const product = Array.isArray(item.products)
                   ? item.products[0]
                   : item.products;
