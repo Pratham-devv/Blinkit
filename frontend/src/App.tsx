@@ -13,50 +13,57 @@ import Categories from "./pages/Categories";
 import SearchPage from "./pages/Search";
 import ProtectedRoute from "./components/ProtectedRoute";
 import OrderDetails from "./pages/OrderDetails";
+import { DarkModeProvider } from "./context/functions/DarkMode.Context";
 
 export default function App() {
   return (
-    <RootProvider>
-      <Router>
-        <Footer />
-        <div className="flex flex-col md:flex-row min-h-screen w-full overflow-x-hidden">
-          
-          {/* Footer/Sidebar Navigation */}
-          
+    <DarkModeProvider>
+      <RootProvider>
+        <Router>
+          <Footer />
+          <div className="flex flex-col md:flex-row min-h-screen w-full overflow-x-hidden">
+            {/* Footer/Sidebar Navigation */}
 
-          {/* Main Content Area */}
-          <div className="flex-1 flex flex-col md:ml-20 lg:ml-24">
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col md:ml-20 lg:ml-24">
+              {/* Page Content */}
+              <main className="flex-1 pb-16 md:pb-0">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<SignUp />} />
+                  <Route path="/account" element={<Profile />} />
 
-            {/* Page Content */}
-            <main className="flex-1 pb-16 md:pb-0">
-              <Routes>
+                  <Route
+                    path="/cart"
+                    element={
+                      <ProtectedRoute>
+                        <Cart />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/account" element={<Profile />} />
-
-                <Route
-                  path="/cart"
-                  element={
-                    <ProtectedRoute>
-                      <Cart />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route path="/productDetails/:productId" element={<ProductDetails />} />
-                <Route path="/categories" element={<Categories />} />
-                <Route path="/order" element={<Order />} />
-                <Route path="/order/success/:orderId" element={<OrderStatus />} />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/orderDetails/:orderId" element={<OrderDetails />} />
-
-              </Routes>
-            </main>
+                  <Route
+                    path="/productDetails/:productId"
+                    element={<ProductDetails />}
+                  />
+                  <Route path="/categories" element={<Categories />} />
+                  <Route path="/order" element={<Order />} />
+                  <Route
+                    path="/order/success/:orderId"
+                    element={<OrderStatus />}
+                  />
+                  <Route path="/search" element={<SearchPage />} />
+                  <Route
+                    path="/orderDetails/:orderId"
+                    element={<OrderDetails />}
+                  />
+                </Routes>
+              </main>
+            </div>
           </div>
-        </div>
-      </Router>
-    </RootProvider>
+        </Router>
+      </RootProvider>
+    </DarkModeProvider>
   );
 }

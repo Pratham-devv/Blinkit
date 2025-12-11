@@ -11,6 +11,7 @@ import {
   TrendingUp,
   Sparkles
 } from "lucide-react";
+import DarkModeToggle from "../components/ModeToggle";
 
 const Home = () => {
   const { products } = useProd();
@@ -36,6 +37,7 @@ const Home = () => {
             
             {/* Logo */}
             <div className="flex items-center gap-2">
+
               <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-1.5 sm:p-2 rounded-xl">
                 <ShoppingCart className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
               </div>
@@ -46,6 +48,10 @@ const Home = () => {
                 <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Fresh in minutes</p>
               </div>
             </div>
+            <div className="sm:hidden">
+              <DarkModeToggle/>
+            </div>
+            
 
             {/* Delivery Info */}
             <div className="hidden sm:flex items-center gap-4">
@@ -53,6 +59,7 @@ const Home = () => {
                 <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span className="text-gray-700 dark:text-gray-300 font-medium">Deliver to Home</span>
               </div>
+              <DarkModeToggle/>
               <Link
                 to="/cart"
                 className="relative p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-xl transition-colors"
