@@ -84,7 +84,12 @@ export const signIn = async (req: Request, res: Response) => {
 
 
     // TODO → SEND via email or SMS
-    await sendOtpMail(email,otp)
+    try {
+  await sendOtpMail(email, otp);
+} catch (err) {
+  console.error("OTP EMAIL ERROR:", err);
+  throw new Error("Failed to send OTP");
+}
     console.log("OTP:", otp);
 
     return res.json({ message: "OTP sent" });
