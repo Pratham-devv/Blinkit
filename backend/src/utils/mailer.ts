@@ -1,6 +1,8 @@
+import dotenv from "dotenv";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+dotenv.config();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendOtpMail = async (to: string, otp: string) => {
   return resend.emails.send({
