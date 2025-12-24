@@ -4,7 +4,6 @@ import { signUp, signIn, deleteProfile, updateProfile, verifyOtp} from "../contr
 import { AuthMiddleware, rateLimiter } from "../middlewares/Auth.middleware";
 
 const router = Router();
-router.get("/test", (req, res) => { res.send("Auth route is working"); });
 router.post("/signup", signUp);
 router.post("/signin",rateLimiter, signIn);
 router.put("/profile/update", AuthMiddleware, updateProfile);

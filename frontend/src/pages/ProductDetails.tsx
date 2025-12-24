@@ -149,10 +149,12 @@ const ProductDetails: React.FC = () => {
           {/* Image / Media */}
           <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-4 sm:p-6 border border-gray-100 dark:border-gray-700">
             <div className="w-full rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-700 aspect-[4/3] flex items-center justify-center">
+               
               <img
-                src={productDetails.image}
+                src={productDetails.image && productDetails.image.length > 0 ? productDetails.image[0] : "https://picsum.photos/400/600"}
                 alt={productDetails.title ?? "product image"}
                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                loading="lazy"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = "/placeholder.png";
                 }}

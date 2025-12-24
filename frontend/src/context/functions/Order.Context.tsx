@@ -48,11 +48,8 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       setLoading(true);
       const res = await api.post("/orders/placeOrder", orderData);
-      console.log("Order placed:", res.data);
-      console.log("Order ID:", res.data.order._id);
       localStorage.setItem("orderId", res.data.order._id);
       const orderDetail = await viewOrderDetails(res.data.order._id);
-      console.log("Fetched Order Details:", orderDetail);
       setError(null);
       return orderDetail || null;
     } catch (err: unknown) {
@@ -69,7 +66,6 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       setLoading(true);
       const res = await api.get(`/orders/${orderId}`);
-      console.log("Fetched Order Detailsss:", res.data);
       return res.data;
     } catch (err: unknown) {
       console.error("Error fetching order details:", err);
@@ -88,7 +84,6 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       await api.delete(`/orders/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Order cancelled:", orderId);
       
       setOrders((prev) => prev.filter((o) => o._id !== orderId));
     } catch (err: unknown) {

@@ -1,15 +1,15 @@
 import { useProd } from "../context/hooks/Products.Hook";
 import { useCart } from "../context/hooks/Cart.Hook";
 import { Link } from "react-router-dom";
-import { 
-  ShoppingCart, 
-  Star, 
-  Plus, 
-  Search, 
-  MapPin, 
+import {
+  ShoppingCart,
+  Star,
+  Plus,
+  Search,
+  MapPin,
   Clock,
   TrendingUp,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import DarkModeToggle from "../components/ModeToggle";
 
@@ -34,10 +34,8 @@ const Home = () => {
       <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            
             {/* Logo */}
             <div className="flex items-center gap-2">
-
               <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-1.5 sm:p-2 rounded-xl">
                 <ShoppingCart className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
               </div>
@@ -45,21 +43,24 @@ const Home = () => {
                 <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">
                   Grocer
                 </h1>
-                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Fresh in minutes</p>
+                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
+                  Fresh in minutes
+                </p>
               </div>
             </div>
             <div className="sm:hidden">
-              <DarkModeToggle/>
+              <DarkModeToggle />
             </div>
-            
 
             {/* Delivery Info */}
             <div className="hidden sm:flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm">
                 <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-gray-700 dark:text-gray-300 font-medium">Deliver to Home</span>
+                <span className="text-gray-700 dark:text-gray-300 font-medium">
+                  Deliver to Home
+                </span>
               </div>
-              <DarkModeToggle/>
+              <DarkModeToggle />
               <Link
                 to="/cart"
                 className="relative p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-xl transition-colors"
@@ -97,12 +98,13 @@ const Home = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        
         {/* Categories Section */}
         <div className="mb-8 sm:mb-12">
           <div className="flex items-center gap-2 mb-4 sm:mb-6">
             <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400" />
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Shop by Category</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+              Shop by Category
+            </h2>
           </div>
 
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
@@ -127,7 +129,9 @@ const Home = () => {
         <div>
           <div className="flex items-center gap-2 mb-4 sm:mb-6">
             <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400" />
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">All Products</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+              All Products
+            </h2>
             <span className="ml-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               ({products.length} items)
             </span>
@@ -146,10 +150,16 @@ const Home = () => {
                   <Link to={`/productDetails/${product._id}`} className="block">
                     <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
                       <img
-                        src={product.image}
+                        src={
+                          product.image && product.image.length > 0
+                            ? product.image[0]
+                            : "https://picsum.photos/400/600"
+                        }
                         alt={product.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        loading="lazy"
                       />
+
                       <div className="absolute top-2 sm:top-3 left-2 sm:left-3 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg flex items-center gap-1 shadow-md">
                         <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
                         <span className="text-xs sm:text-sm font-bold text-gray-800 dark:text-white">
@@ -172,13 +182,14 @@ const Home = () => {
                         <p className="text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                           ₹{product.price}
                         </p>
-                        <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">MRP incl. taxes</p>
+                        <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
+                          MRP incl. taxes
+                        </p>
                       </div>
                     </div>
 
                     {/* ACTION BUTTONS */}
                     <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2">
-
                       {/* View Button */}
                       <Link
                         to={`/productDetails/${product._id}`}
@@ -198,7 +209,6 @@ const Home = () => {
                         </button>
                       ) : (
                         <div className="flex items-center justify-between px-2 sm:px-4 py-1.5 sm:py-2.5 bg-emerald-600 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold">
-
                           <button
                             onClick={() => addToCart(product, -1)}
                             className="px-2"
@@ -214,10 +224,8 @@ const Home = () => {
                           >
                             +
                           </button>
-
                         </div>
                       )}
-
                     </div>
                   </div>
                 </div>

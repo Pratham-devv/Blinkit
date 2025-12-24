@@ -31,9 +31,8 @@ const SignUp = () => {
       setError(msg || "Sign up failed");
       return;
     }
-
-    // Go to OTP page
-    navigate("/verify-otp");
+    setError(null);
+    navigate("/");
   };
 
   return (

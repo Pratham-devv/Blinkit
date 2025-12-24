@@ -90,8 +90,6 @@ export const signIn = async (req: Request, res: Response) => {
   console.error("OTP EMAIL ERROR:", err);
   throw new Error("Failed to send OTP");
 }
-    console.log("OTP:", otp);
-
     return res.json({ message: "OTP sent" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });

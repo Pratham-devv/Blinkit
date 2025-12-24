@@ -15,7 +15,6 @@ export const ProductProvider: React.FC<{children: ReactNode}> = ({children})=>{
     const getProducts = async ()=>{
         const res = await api.get('/products');
         setProducts(res.data);
-        console.log(res.data);
         return res.data;
     };
 

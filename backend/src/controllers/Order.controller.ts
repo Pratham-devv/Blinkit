@@ -37,7 +37,6 @@ export const placeOrder = async (req: AuthiRequest, res: Response) => {
       return acc + price * (item.quantity || 0);
     }, 0);
 
-    console.log("Order amount",totalAmount);
 
     // 🧱 Build order items array safely 
     const orderItems = cart.items
@@ -47,7 +46,6 @@ export const placeOrder = async (req: AuthiRequest, res: Response) => {
           Array.isArray(item.products) && item.products.length > 0
             ? item.products[0]
             : item.products;
-        console.log("order Product",product);
 
         const productId = new mongoose.Types.ObjectId(product as any);
 
@@ -57,12 +55,11 @@ export const placeOrder = async (req: AuthiRequest, res: Response) => {
         };
       });
 
-    // 🚫 Guard clause: if no valid products
     if (orderItems.length === 0) {
       return res.status(400).json({ message: "No valid products in cart" });
     }
 
-    // 🆕 Create new order
+
     const newOrder = await Order.create({
       user: userId,
       items: orderItems,
@@ -70,7 +67,6 @@ export const placeOrder = async (req: AuthiRequest, res: Response) => {
       status: "pending",
     });
 
-    // 🧹 Clear cart
     cart.items = [];
     await cart.save();
 
@@ -107,7 +103,6 @@ export const viewOrderDetails = async (req: AuthiRequest, res: Response) => {
     try {
         const userId = req.user?._id.toString();
         const orderId = req.params.id;
-        console.log("Order ID Param:", orderId);
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
         }
@@ -142,4 +137,4 @@ export const cancelOrder = async (req: AuthiRequest, res: Response) => {
         res.status(500).json({ message: "Server error", error });
     }   
 };
-
+ 

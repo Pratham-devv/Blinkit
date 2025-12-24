@@ -11,7 +11,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const[localCartItems,setLocalCartItems]=useState<CartItem[]>([]);
   const {token}= useAuth();
-  console.log("🛒 Cart Items:", cartItems);
 
   // 🧩 Fetch Cart from Backend or LocalStorage  
   useEffect(() => {
@@ -43,7 +42,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }));
 
           setCartItems(mergedItems);
-          console.log("Merged guest cart into backend cart:", mergedItems);
           setLocalCartItems([]);
           localStorage.removeItem("cartItems");
           setCartItems([...mergedItems]);
@@ -54,7 +52,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // if merge fails, we just fall through and try normal fetch
       }
 
-      // 3️⃣ If no local cart or merge failed → just fetch backend cart
+      // If no local cart or merge failed → just fetch backend cart
       try {
         const res = await api.get("/cart");
         const backendItems: CartItem[] = (res.data.items || []).map((item: CartItem) => ({
@@ -63,7 +61,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }));
 
         setCartItems(backendItems);
-        console.log("Fetched backend cart items:", backendItems);
         setLocalCartItems([]);
       } catch (err) {
         console.error("Error fetching backend cart:", err);
@@ -103,7 +100,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // logged in → backend cart
     setCartItems((prev) => {;
       const existing = prev.find((i) => String(i.products._id) === String(product._id));
-      console.log("Existing item in main cart:", existing);
       if (existing) {
         return prev.map((item) =>
           item.products._id === product._id

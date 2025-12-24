@@ -14,10 +14,7 @@ interface MergeItemInput {
 export const addToCart = async (req: AuthiRequest, res: Response) => {
     try { 
         const userId = req.user?._id.toString();
-        console.log(userId);
         const { productId, quantity } = req.body;
-        console.log("Here is products Id",productId);
-        console.log(quantity);
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
         }
@@ -29,7 +26,6 @@ export const addToCart = async (req: AuthiRequest, res: Response) => {
         if (!cart) {
             cart = new Cart({ user: userId, items: [] });
         }
-        console.log("cart before adding item:", cart);
         const existingItem = cart.items.find((item) => String(item.products._id || item.products) === String(productId));
         if (existingItem) {
             existingItem.quantity += quantity;

@@ -137,10 +137,15 @@ const Categories = () => {
                   {/* Product Image */}
                   <Link to={`/productDetails/${product._id}`} className="block">
                     <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
-                      <img
-                        src={product.image}
+                       <img
+                        src={
+                          product.image && product.image.length > 0
+                            ? product.image[0]
+                            : "https://picsum.photos/400/600"
+                        }
                         alt={product.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        loading="lazy"
                       />
                       {/* Rating Badge */}
                       <div className="absolute top-2 sm:top-3 left-2 sm:left-3 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg flex items-center gap-1 shadow-md">

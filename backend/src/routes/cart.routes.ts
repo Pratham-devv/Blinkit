@@ -3,7 +3,6 @@ import { addToCart, viewCart, removeFromCart, clearCart, mergeCart, removeItemCo
 import { AuthMiddleware } from "../middlewares/Auth.middleware";
 
 const router = Router();
-router.get("/test", (req, res) => { res.send("Cart route is working"); });
 router.post("/add", AuthMiddleware,  addToCart);
 router.get("/", AuthMiddleware,viewCart);
 router.delete("/remove",AuthMiddleware, removeFromCart);

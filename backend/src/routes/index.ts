@@ -6,7 +6,6 @@ import orderRoutes from "./order.routes";
 import cartRoutes from "./cart.routes";
 
 const router = Router();
-console.log("Routes initialized");
 
 router.use("/auth", authRoutes)
 router.use("/products", productRoutes )

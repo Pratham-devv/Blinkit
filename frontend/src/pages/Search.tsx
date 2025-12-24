@@ -144,11 +144,16 @@ const SearchPage: React.FC = () => {
             >
               {/* IMAGE */}
               <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+                 <img
+                        src={
+                          product.image && product.image.length > 0
+                            ? product.image[0]
+                            : "https://picsum.photos/400/600"
+                        }
+                        alt={product.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        loading="lazy"
+                      />
 
                 {/* Rating */}
                 <div className="absolute top-2 right-2 bg-white dark:bg-gray-900 px-2 py-1 rounded-md shadow text-xs flex items-center gap-1">

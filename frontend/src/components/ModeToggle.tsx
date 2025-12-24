@@ -2,6 +2,7 @@ import { useMode } from "../context/hooks/Theme.Hook";
 import { Moon, Sun } from "lucide-react";
 
 const DarkModeToggle = () => {
+  
   const { theme, toggleTheme } = useMode();
 
   return (

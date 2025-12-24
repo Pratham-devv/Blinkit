@@ -36,7 +36,6 @@ const Cart = () => {
     const orderId = order!._id;
     if (order && orderId) {
       navigate(`/order/success/${orderId}`);
-      window.location.reload();
     }
   };
 

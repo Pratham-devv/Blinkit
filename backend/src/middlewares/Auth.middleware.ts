@@ -26,16 +26,12 @@ export const AuthMiddleware = async (
     if (!secret) {
       throw new Error("JWT_SECRET is not defined in environment variables");
     } 
-    console.log("token from", token);
 
     const decoded = jwt.verify(token, secret) as jwt.JwtPayload;
-    console.log(decoded);
     const user = await User.findById(decoded.id).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    console.log(user);
-
     req.user = user;
     next();
   } catch (error) {
